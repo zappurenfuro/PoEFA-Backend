@@ -139,7 +139,7 @@ async function updateResults() {
 }
 
 // Update results by cron
-app.post('/update-cron', async (req, res) => {
+app.get('/update-cron', async (req, res) => {
     try {
         await updateResults();
         console.log('Results updated via cron');
