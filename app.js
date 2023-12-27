@@ -136,13 +136,12 @@ app.get('/update-cron', async (req, res) => {
         finalResults = results;
         console.log("Results updated:", results);
         console.log("Results updated at:", new Date());
+        res.status(200).send('update success triggered by cron job');
     } catch (error) {
         console.error('Error updating results:', error);
     }
 });
 
-console.log(finalResults);
-console.log("final");
 // API endpoint
 app.get('/calculate-prices', async (req, res) => {
     try {
