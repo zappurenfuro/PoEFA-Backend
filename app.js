@@ -141,6 +141,8 @@ app.get('/update-cron', async (req, res) => {
     }
 });
 
+console.log(finalResults);
+console.log("final");
 // API endpoint
 app.get('/calculate-prices', async (req, res) => {
     try {
