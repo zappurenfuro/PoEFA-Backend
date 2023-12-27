@@ -129,24 +129,13 @@ async function dataProcess(){
     return results;
 }
 
-async function updateResults() {
+// Update results by cron
+app.get('/update-cron', async (req, res) => {
     try {
         results = await dataProcess();
         console.log("Results updated at:", new Date());
     } catch (error) {
         console.error('Error updating results:', error);
-    }
-}
-
-// Update results by cron
-app.get('/update-cron', async (req, res) => {
-    try {
-        await updateResults();
-        console.log('Results updated via cron');
-        res.status(200).send('Update triggered by cron job');
-    } catch (error) {
-        console.error('Error in /update-cron:', error);
-        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -162,5 +151,4 @@ app.get('/calculate-prices', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    updateResults();
 });
