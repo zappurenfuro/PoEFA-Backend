@@ -65,7 +65,7 @@ async function dataProcess(){
         'Content-Type': 'application/json',
         // Use your own cookie
         'Cookie': '',
-        'User-Agent': ''
+        'User-Agent': 'your-user-agent'
     };
 
     // Create payloads
@@ -136,10 +136,9 @@ app.get('/update-cron', async (req, res) => {
         finalResults = results;
         console.log("Results updated:", results);
         console.log("Results updated at:", new Date());
-        res.status(200).send('Update success triggered by cron service');
+        res.status(200).send('Update success triggered by cron job');
     } catch (error) {
         console.error('Error updating results:', error);
-        res.status(500).send('Error in updating cron');
     }
 });
 
