@@ -1,3 +1,4 @@
+const cron = require('node-cron');
 const express = require('express');
 const axios = require('axios');
 
@@ -7,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 const cors = require('cors');
 app.use(cors());
 
+let results = {};
 
 // Helper functions
 function createPayload(status, have, want, minimum) {
@@ -56,8 +58,8 @@ function calculatePrice(responseData, countLimit) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-// API endpoint
-app.get('/calculate-prices', async (req, res) => {
+
+async function dataProcess(){
     // Your Node.js code logic
     const url = 'https://www.pathofexile.com/api/trade/exchange/Affliction';
     const headers = {
@@ -71,50 +73,87 @@ app.get('/calculate-prices', async (req, res) => {
     const currencyPayload = createPayload("online", ["chaos"], ["divine"], 1);
     const bulkPayloadScreaming = createPayload("online", ["divine"], ["screaming-invitation"], 10);
     const bulkPayloadIncandescent = createPayload("online", ["divine"], ["incandescent-invitation"], 10);
+    const bulkPayloadMaven = createPayload("online", ["divine"], ["the-mavens-writ"], 10);
     const singlePayloadScreaming = createPayload("online", ["chaos"], ["screaming-invitation"], 1);
     const singlePayloadIncandescent = createPayload("online", ["chaos"], ["incandescent-invitation"], 1);
+    const singlePayloadMaven = createPayload("online", ["divine"], ["the-mavens-writ"], 1);
 
     // Make requests with delays to prevent rate limiting
     const currencyResponseData = await makeRequest(url, headers, currencyPayload);
-    await sleep(1000); // Wait for 1 second
+    await sleep(6000); // Wait for 6 second
 
     const bulkResponseDataScreaming = await makeRequest(url, headers, bulkPayloadScreaming);
-    await sleep(1000); // Wait for 1 second
+    await sleep(6000); // Wait for 6 second
 
     const bulkResponseDataIncandescent = await makeRequest(url, headers, bulkPayloadIncandescent);
-    await sleep(1000); // Wait for 1 second
+    await sleep(6000); // Wait for 6 second
+
+    const bulkResponseDataMaven = await makeRequest(url, headers, bulkPayloadMaven);
+    await sleep(6500); // Wait for 6.5 second
 
     const singleResponseDataScreaming = await makeRequest(url, headers, singlePayloadScreaming);
-    await sleep(1000); // Wait for 1 second
+    await sleep(6500); // Wait for 6.5 second
 
     const singleResponseDataIncandescent = await makeRequest(url, headers, singlePayloadIncandescent);
+    await sleep(6500); // Wait for 6.5 second
+
+    const singleResponseDataMaven = await makeRequest(url, headers, singlePayloadMaven);
     // No need to sleep here if this is the last request
 
     // Calculate prices
     const divinePrice = calculatePrice(currencyResponseData, 21);
     const bulkPriceScreaming = calculatePrice(bulkResponseDataScreaming, 1);
     const bulkPriceIncandescent = calculatePrice(bulkResponseDataIncandescent, 1);
+    const bulkPriceMaven = calculatePrice(bulkResponseDataMaven, 1);
     const singlePriceScreaming = calculatePrice(singleResponseDataScreaming, 7);
     const singlePriceIncandescent = calculatePrice(singleResponseDataIncandescent, 7);
+    const singlePriceMaven = calculatePrice(singleResponseDataMaven, 7);
 
     // Profit calculations
     const profitScreaming = (divinePrice * bulkPriceScreaming) - singlePriceScreaming;
     const profitIncandescent = (divinePrice * bulkPriceIncandescent) - singlePriceIncandescent;
+    const profitMaven = divinePrice * (bulkPriceMaven - singlePriceMaven);
 
     // Compile the results
     const results = {
-        "divine_price": divinePrice,
-        "bulk_price_screaming": bulkPriceScreaming,
-        "bulk_price_incandescent": bulkPriceIncandescent,
-        "single_price_screaming": singlePriceScreaming,
-        "single_price_incandescent": singlePriceIncandescent,
-        "profit_screaming": profitScreaming,
-        "profit_incandescent": profitIncandescent
+        divine_price: divinePrice,
+        bulk_price_screaming: bulkPriceScreaming,
+        bulk_price_incandescent: bulkPriceIncandescent,
+        bulk_price_maven: bulkPriceMaven,
+        single_price_screaming: singlePriceScreaming,
+        single_price_incandescent: singlePriceIncandescent,
+        single_price_maven: singlePriceMaven,
+        profit_screaming: profitScreaming,
+        profit_incandescent: profitIncandescent,
+        profit_maven: profitMaven
     };
+    return results;
+}
 
+// Function to update results
+async function updateResults() {
+    try {
+        results = await dataProcess();
+        console.log("Results updated:", results);
+    } catch (error) {
+        console.error('Error updating results:', error);
+    }
+}
+
+// Schedule the updateResults function to run on a cron schedule every 2 minutes
+cron.schedule('*/2 * * * *', () => {
+    console.log('Running a task every 2 minutes');
+    updateResults();
+});
+
+
+// API endpoint
+app.get('/calculate-prices', async (req, res) => {
+    console.log("API Request was received.");
     res.json(results);
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    updateResults(); // Initial call to populate results
 });
