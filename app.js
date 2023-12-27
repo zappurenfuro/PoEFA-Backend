@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 const cors = require('cors');
 app.use(cors());
 
-let results = {};
+let finalResults = {};
 
 // Helper functions
 function createPayload(status, have, want, minimum) {
@@ -132,7 +132,8 @@ async function dataProcess(){
 // Update results by cron
 app.get('/update-cron', async (req, res) => {
     try {
-        results = await dataProcess();
+        const results = await dataProcess();
+        finalResults = results;
         console.log("Results updated:", results);
         console.log("Results updated at:", new Date());
     } catch (error) {
@@ -144,7 +145,7 @@ app.get('/update-cron', async (req, res) => {
 app.get('/calculate-prices', async (req, res) => {
     try {
         console.log("Results calculated:", results);
-        res.json(results); // Send back the latest data
+        res.json(finalResults); // Send back the latest data
     } catch (error) {
         res.status(500).send('Error in processing data');
     }
