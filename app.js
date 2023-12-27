@@ -129,12 +129,6 @@ async function dataProcess(){
     return results;
 }
 
-// Schedule the updateResults function to run on a cron schedule every 2 minutes
-cron.schedule('*/2 * * * *', () => {
-    console.log('Running a task every 2 minutes');
-    updateResults();
-});
-
 // API endpoint
 app.get('/calculate-prices', async (req, res) => {
     try {
