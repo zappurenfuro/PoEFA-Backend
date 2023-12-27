@@ -85,16 +85,16 @@ async function dataProcess(){
     await sleep(3000); // Wait for 6 second
 
     const bulkResponseDataIncandescent = await makeRequest(url, headers, bulkPayloadIncandescent);
-    await sleep(4000); // Wait for 6 second
+    await sleep(3500); // Wait for 6 second
 
     const bulkResponseDataMaven = await makeRequest(url, headers, bulkPayloadMaven);
-    await sleep(4000); // Wait for 6.5 second
+    await sleep(3500); // Wait for 6.5 second
 
     const singleResponseDataScreaming = await makeRequest(url, headers, singlePayloadScreaming);
-    await sleep(4500); // Wait for 6.5 second
+    await sleep(4000); // Wait for 6.5 second
 
     const singleResponseDataIncandescent = await makeRequest(url, headers, singlePayloadIncandescent);
-    await sleep(5000); // Wait for 6.5 second
+    await sleep(4000); // Wait for 6.5 second
 
     const singleResponseDataMaven = await makeRequest(url, headers, singlePayloadMaven);
     // No need to sleep here if this is the last request
@@ -129,14 +129,33 @@ async function dataProcess(){
     return results;
 }
 
+async function updateResults() {
+    try {
+        results = await dataProcess();
+        console.log("Results updated at:", new Date());
+    } catch (error) {
+        console.error('Error updating results:', error);
+    }
+}
+
+// Update results by cron
+app.post('/update-cron', async (req, res) => {
+    try {
+        await updateResults();
+        console.log('Results updated via cron');
+        res.status(200).send('Update triggered by cron job');
+    } catch (error) {
+        console.error('Error in /update-cron:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // API endpoint
 app.get('/calculate-prices', async (req, res) => {
     try {
-        const results = await dataProcess(); // Calculate the latest data when the endpoint is hit
         console.log("Results calculated:", results);
         res.json(results); // Send back the latest data
     } catch (error) {
-        console.error('Error in /calculate-prices:', error);
         res.status(500).send('Error in processing data');
     }
 });
