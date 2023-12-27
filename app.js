@@ -133,6 +133,7 @@ async function dataProcess(){
 app.get('/update-cron', async (req, res) => {
     try {
         results = await dataProcess();
+        console.log("Results updated:", results);
         console.log("Results updated at:", new Date());
     } catch (error) {
         console.error('Error updating results:', error);
