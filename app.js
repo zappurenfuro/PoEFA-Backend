@@ -65,7 +65,7 @@ async function dataProcess(){
         'Content-Type': 'application/json',
         // Use your own cookie
         'Cookie': '',
-        'User-Agent': 'your-user-agent'
+        'User-Agent': ''
     };
 
     // Create payloads
@@ -79,22 +79,22 @@ async function dataProcess(){
 
     // Make requests with delays to prevent rate limiting
     const currencyResponseData = await makeRequest(url, headers, currencyPayload);
-    await sleep(3000); // Wait for 6 second
+    await sleep(3000); // Wait for 3 second
 
     const bulkResponseDataScreaming = await makeRequest(url, headers, bulkPayloadScreaming);
-    await sleep(3000); // Wait for 6 second
+    await sleep(3000); // Wait for 3 second
 
     const bulkResponseDataIncandescent = await makeRequest(url, headers, bulkPayloadIncandescent);
-    await sleep(3500); // Wait for 6 second
+    await sleep(3500); // Wait for 3.5 second
 
     const bulkResponseDataMaven = await makeRequest(url, headers, bulkPayloadMaven);
-    await sleep(3500); // Wait for 6.5 second
+    await sleep(3500); // Wait for 3.5 second
 
     const singleResponseDataScreaming = await makeRequest(url, headers, singlePayloadScreaming);
-    await sleep(4000); // Wait for 6.5 second
+    await sleep(4000); // Wait for 4 second
 
     const singleResponseDataIncandescent = await makeRequest(url, headers, singlePayloadIncandescent);
-    await sleep(4000); // Wait for 6.5 second
+    await sleep(4000); // Wait for 4 second
 
     const singleResponseDataMaven = await makeRequest(url, headers, singlePayloadMaven);
     // No need to sleep here if this is the last request
@@ -136,9 +136,10 @@ app.get('/update-cron', async (req, res) => {
         finalResults = results;
         console.log("Results updated:", results);
         console.log("Results updated at:", new Date());
-        res.status(200).send('update success triggered by cron job');
+        res.status(200).send('Update success triggered by cron service');
     } catch (error) {
         console.error('Error updating results:', error);
+        res.status(500).send('Error in updating cron');
     }
 });
 
