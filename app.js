@@ -1,4 +1,3 @@
-const cron = require('node-cron');
 const express = require('express');
 const axios = require('axios');
 
@@ -130,30 +129,24 @@ async function dataProcess(){
     return results;
 }
 
-// Function to update results
-async function updateResults() {
-    try {
-        results = await dataProcess();
-        console.log("Results updated:", results);
-    } catch (error) {
-        console.error('Error updating results:', error);
-    }
-}
-
 // Schedule the updateResults function to run on a cron schedule every 2 minutes
 cron.schedule('*/2 * * * *', () => {
     console.log('Running a task every 2 minutes');
     updateResults();
 });
 
-
 // API endpoint
 app.get('/calculate-prices', async (req, res) => {
-    console.log("API Request was received.");
-    res.json(results);
+    try {
+        const results = await dataProcess(); // Calculate the latest data when the endpoint is hit
+        console.log("Results calculated:", results);
+        res.json(results); // Send back the latest data
+    } catch (error) {
+        console.error('Error in /calculate-prices:', error);
+        res.status(500).send('Error in processing data');
+    }
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    updateResults(); // Initial call to populate results
 });
