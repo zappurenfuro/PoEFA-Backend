@@ -146,8 +146,8 @@ app.get('/update-cron', async (req, res) => {
 app.get('/calculate-prices', async (req, res) => {
     try {
         console.log("Results calculated:", finalResults);
-        res.json(finalResults); // Send back the latest data
         res.status(200).send('Response sent.');
+        res.json(finalResults); // Send back the latest data
     } catch (error) {
         console.error('Error in /calculate-prices:', error);
         res.status(500).send('Error in processing data');
