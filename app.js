@@ -1,10 +1,10 @@
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const cors = require('cors');
 app.use(cors());
 
 let finalResults = {};
@@ -58,12 +58,11 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Data processing
 async function dataProcess(){
-    // Your Node.js code logic
-    const url = 'https://www.pathofexile.com/api/trade/exchange/Affliction';
+    const url = 'https://www.pathofexile.com/api/trade/exchange/Necropolis';
     const headers = {
         'Content-Type': 'application/json',
-        // Use your own cookie
         'Cookie': '',
         'User-Agent': 'your-user-agent'
     };
@@ -73,9 +72,9 @@ async function dataProcess(){
     const bulkPayloadScreaming = createPayload("online", ["divine"], ["screaming-invitation"], 10);
     const bulkPayloadIncandescent = createPayload("online", ["divine"], ["incandescent-invitation"], 10);
     const bulkPayloadMaven = createPayload("online", ["divine"], ["the-mavens-writ"], 10);
-    const singlePayloadScreaming = createPayload("online", ["divine"], ["screaming-invitation"], 1);
-    const singlePayloadIncandescent = createPayload("online", ["divine"], ["incandescent-invitation"], 1);
-    const singlePayloadMaven = createPayload("online", ["divine"], ["the-mavens-writ"], 1);
+    const singlePayloadScreaming = createPayload("online", ["chaos"], ["screaming-invitation"], 1);
+    const singlePayloadIncandescent = createPayload("online", ["chaos"], ["incandescent-invitation"], 1);
+    const singlePayloadMaven = createPayload("online", ["chaos"], ["the-mavens-writ"], 1);
 
     // Make requests with delays to prevent rate limiting
     const currencyResponseData = await makeRequest(url, headers, currencyPayload);
@@ -109,9 +108,9 @@ async function dataProcess(){
     const singlePriceMaven = calculatePrice(singleResponseDataMaven, 7);
 
     // Profit calculations
-    const profitScreaming = divinePrice * (bulkPriceScreaming - singlePriceScreaming);
-    const profitIncandescent = divinePrice * (bulkPriceIncandescent - singlePriceIncandescent);
-    const profitMaven = divinePrice * (bulkPriceMaven - singlePriceMaven);
+    const profitScreaming = (divinePrice * bulkPriceScreaming) - singlePriceScreaming;
+    const profitIncandescent = (divinePrice * bulkPriceIncandescent) - singlePriceIncandescent;
+    const profitMaven = (divinePrice * bulkPriceMaven) - singlePriceMaven;
 
     // Compile the results
     const results = {
@@ -149,7 +148,7 @@ app.get('/calculate-prices', async (req, res) => {
         if (Object.keys(finalResults).length === 0) {
             console.log("finalResults is empty, triggering update.");
             // Since finalResults is empty, call dataProcess to update it
-            finalResults = await dataProcess(); // Make sure dataProcess returns the updated results
+            finalResults = await dataProcess();
             console.log("Results updated:", finalResults);
         }
         console.log("Results calculated:", finalResults);
