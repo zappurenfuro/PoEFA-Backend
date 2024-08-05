@@ -9,7 +9,6 @@ app.use(cors());
 
 let finalResults = {};
 
-// Helper functions
 function createPayload(status, have, want, minimum) {
     return {
         query: {
@@ -60,7 +59,7 @@ function sleep(ms) {
 
 // Data processing
 async function dataProcess(){
-    const url = 'https://www.pathofexile.com/api/trade/exchange/Necropolis';
+    const url = 'https://www.pathofexile.com/api/trade/exchange/Settlers';
     const headers = {
         'Content-Type': 'application/json',
         'Cookie': '',
@@ -96,7 +95,6 @@ async function dataProcess(){
     await sleep(4000); // Wait for 4 second
 
     const singleResponseDataMaven = await makeRequest(url, headers, singlePayloadMaven);
-    // No need to sleep here if this is the last request
 
     // Calculate prices
     const divinePrice = calculatePrice(currencyResponseData, 21);
